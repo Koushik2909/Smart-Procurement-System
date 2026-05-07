@@ -1,0 +1,12 @@
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\domain\state\TenderState.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\domain\Tender.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\domain\TenderStatus.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\dto\ProcurementInsightsDTO.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\dto\TenderAnalyticsDTO.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\dto\TenderInput.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\dto\VendorPerformanceDTO.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\graphql\AnalyticsController.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\graphql\TenderController.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\repository\TenderRepository.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\service\AnalyticsService.java
+C:\Users\bkous\Downloads\procurement-system\tender-management\src\main\java\com\procurement\tender\service\TenderService.java

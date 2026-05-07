@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+      </profile>
+      <profile name="Annotation profile for Procurement System" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
+        </processorPath>
+        <module name="auction-engine" />
+        <module name="bid-management" />
+        <module name="compliance-audit" />
+        <module name="vendor-management" />
+        <module name="application-runner" />
+        <module name="core-common" />
+        <module name="tender-management" />
+        <module name="security-auth" />
+        <module name="notification-service" />
+        <module name="contract-financial" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="application-runner" options="-parameters --enable-preview" />
+      <module name="auction-engine" options="-parameters --enable-preview" />
+      <module name="bid-management" options="-parameters --enable-preview" />
+      <module name="compliance-audit" options="-parameters --enable-preview" />
+      <module name="contract-financial" options="-parameters --enable-preview" />
+      <module name="core-common" options="-parameters --enable-preview" />
+      <module name="notification-service" options="-parameters --enable-preview" />
+      <module name="procurement-system" options="-parameters --enable-preview" />
+      <module name="security-auth" options="-parameters --enable-preview" />
+      <module name="tender-management" options="-parameters --enable-preview" />
+      <module name="vendor-management" options="-parameters --enable-preview" />
+    </option>
+  </component>
+</project>

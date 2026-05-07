@@ -1,0 +1,4 @@
+com\procurement\audit\graphql\AuditController.class
+com\procurement\audit\service\AuditService.class
+com\procurement\audit\domain\AuditLog.class
+com\procurement\audit\repository\AuditLogRepository.class

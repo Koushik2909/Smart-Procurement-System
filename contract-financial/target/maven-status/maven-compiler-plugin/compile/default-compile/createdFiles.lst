@@ -1,0 +1,8 @@
+com\procurement\contract\repository\PaymentRepository.class
+com\procurement\contract\graphql\ContractController.class
+com\procurement\contract\repository\ContractRepository.class
+com\procurement\contract\domain\ContractStatus.class
+com\procurement\contract\domain\Payment.class
+com\procurement\contract\domain\PaymentStatus.class
+com\procurement\contract\domain\Contract.class
+com\procurement\contract\service\ContractService.class

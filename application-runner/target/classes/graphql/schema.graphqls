@@ -1,0 +1,269 @@
+# GraphQL Schema — Smart Procurement System
+# ==============================================================
+# Types
+# ==============================================================
+
+type User {
+    id: ID!
+    username: String!
+    role: String!
+}
+
+type Tender {
+    id: ID!
+    title: String!
+    description: String!
+    status: String!
+    submissionDeadline: String
+    createdByUserId: ID!
+}
+
+type Bid {
+    id: ID!
+    tenderId: ID!
+    vendorId: ID!
+    status: String!
+    technicalProposalUrl: String
+    technicalScore: Float
+    financialScore: Float
+}
+
+type VendorProfile {
+    id: ID!
+    userId: ID!
+    companyName: String!
+    taxId: String!
+    kycDocumentUrl: String
+    status: String!
+}
+
+type Auction {
+    id: ID!
+    tenderId: ID!
+    startTime: String!
+    endTime: String!
+    startingPrice: Float
+    minimumDecrement: Float
+    status: String!
+}
+
+type AuctionBid {
+    id: ID!
+    auctionId: ID!
+    vendorId: ID!
+    bidAmount: Float!
+    bidTime: String!
+}
+
+type Contract {
+    id: ID!
+    tenderId: ID!
+    vendorId: ID!
+    contractValue: Float!
+    status: String!
+    digitalSignature: String
+    signedAt: String
+    terminatedReason: String
+}
+
+type Payment {
+    id: ID!
+    contractId: ID!
+    milestoneName: String
+    amount: Float!
+    status: String!
+    dueDate: String
+    releasedAt: String
+    penaltyAmount: Float
+}
+
+type AuditLog {
+    id: ID!
+    eventType: String!
+    entityType: String!
+    entityId: ID!
+    performedBy: String!
+    details: String
+    isViolation: Boolean
+}
+
+type Notification {
+    id: ID!
+    eventType: String!
+    message: String!
+    targetRole: String
+    entityId: ID
+    isRead: Boolean
+}
+
+type AuthResponse {
+    token: String!
+    refreshToken: String!
+    type: String!
+    username: String!
+    role: String!
+}
+
+type TenderAnalytics {
+    DRAFT: Int
+    PUBLISHED: Int
+    OPEN: Int
+    CLOSED: Int
+    EVALUATION: Int
+    AWARDED: Int
+    CANCELLED: Int
+}
+
+type VendorPerformance {
+    averageTechnicalScore: Float
+    averageFinancialScore: Float
+    weightedFinalScore: Float
+    totalBidsSubmitted: Float
+}
+
+type ProcurementInsights {
+    totalTenders: Int
+    activeTenders: Int
+    awardedTenders: Int
+    cancelledTenders: Int
+    reportGeneratedAt: String
+}
+
+# ==============================================================
+# Inputs
+# ==============================================================
+
+input AuthInput {
+    username: String!
+    password: String!
+}
+
+input TenderInput {
+    title: String!
+    description: String!
+    submissionDeadline: String
+}
+
+input BidInput {
+    tenderId: ID!
+    technicalProposalUrl: String!
+    encryptedFinancialProposal: String!
+}
+
+input VendorInput {
+    companyName: String!
+    taxId: String!
+    kycDocumentUrl: String
+}
+
+input AuctionInput {
+    tenderId: ID!
+    startTime: String!
+    endTime: String!
+    startingPrice: Float!
+    minimumDecrement: Float!
+}
+
+# ==============================================================
+# Queries
+# ==============================================================
+
+type Query {
+    # Auth
+    me: String
+
+    # Tenders
+    getTenderById(id: ID!): Tender
+    getActiveTenders: [Tender]
+
+    # Bids
+    getBidById(id: ID!): Bid
+    getBidsByTender(tenderId: ID!): [Bid]
+
+    # Vendors
+    getVendorById(id: ID!): VendorProfile
+    getQualifiedVendors: [VendorProfile]
+
+    # Auctions
+    getAuctionDetails(id: ID!): Auction
+    getAuctionLeaderboard(auctionId: ID!): [AuctionBid]
+
+    # Contracts
+    getContractDetails(id: ID!): Contract
+    getAwardHistory(vendorId: ID!): [Contract]
+    getPaymentDetails(contractId: ID!): [Payment]
+
+    # Audit
+    getAuditLogs(entityType: String!, entityId: ID!): [AuditLog]
+    getComplianceReport: [AuditLog]
+
+    # Notifications
+    getUnreadNotifications: [Notification]
+
+    # Fraud Detection
+    detectBidCollusion(tenderId: ID!): [String]
+    analyzeVendorPatterns: [String]
+    getFraudAlerts(tenderId: ID!): [String]
+
+    # Analytics
+    getTenderAnalytics: TenderAnalytics
+    getVendorPerformance(vendorId: ID!): VendorPerformance
+    getProcurementInsights: ProcurementInsights
+}
+
+# ==============================================================
+# Mutations
+# ==============================================================
+
+type Mutation {
+    # Auth
+    registerUser(input: AuthInput!): User
+    login(input: AuthInput!): AuthResponse
+    refreshToken(token: String!): AuthResponse
+    requestVendorRole: Boolean
+    changeUserRole(userId: ID!, role: String!): Boolean
+
+    # Tenders
+    createTender(input: TenderInput!): Tender
+    publishTender(id: ID!): Tender
+    openTender(id: ID!): Tender
+    cancelTender(id: ID!, reason: String!): Tender
+
+    # Bids
+    submitBid(input: BidInput!): Bid
+    evaluateBid(id: ID!): Bid
+
+    # Vendors
+    registerVendorProfile(input: VendorInput!): VendorProfile
+    approveVendor(id: ID!): VendorProfile
+    rejectVendor(id: ID!): VendorProfile
+
+    # Auctions
+    startAuction(input: AuctionInput!): Auction
+    placeBidInAuction(auctionId: ID!, amount: Float!): AuctionBid
+    closeAuction(id: ID!): Auction
+
+    # Contracts & Payments
+    awardContract(tenderId: ID!, vendorId: ID!, contractValue: Float!): Contract
+    signContract(id: ID!, digitalSignature: String!): Contract
+    terminateContract(id: ID!, reason: String!): Contract
+    createPaymentSchedule(contractId: ID!, milestoneName: String!, amount: Float!, dueDate: String!): Payment
+    releasePayment(paymentId: ID!): Payment
+    processPenalty(paymentId: ID!, penaltyAmount: Float!): Payment
+    refundDeposit(paymentId: ID!): Payment
+
+    # Audit
+    logAuditEvent(eventType: String!, entityType: String!, entityId: ID!, details: String): AuditLog
+    flagViolation(logId: ID!): AuditLog
+
+    # Notifications
+    sendNotification(eventType: String!, message: String!, targetRole: String!, entityId: ID): Notification
+}
+
+# ==============================================================
+# Subscriptions
+# ==============================================================
+
+type Subscription {
+    notificationReceived(role: String): Notification
+}

@@ -1,0 +1,17 @@
+com\procurement\bid\domain\state\BidState$Opened.class
+com\procurement\bid\domain\Bid$1.class
+com\procurement\bid\domain\state\BidState$Accepted.class
+com\procurement\bid\graphql\BidController.class
+com\procurement\bid\domain\Bid.class
+com\procurement\bid\domain\BidStatus.class
+com\procurement\bid\repository\BidRepository.class
+com\procurement\bid\domain\state\BidState$Locked.class
+com\procurement\bid\service\FraudDetectionService.class
+com\procurement\bid\service\BidService.class
+com\procurement\bid\domain\state\BidState$Rejected.class
+com\procurement\bid\graphql\FraudController.class
+com\procurement\bid\domain\state\BidState$Submitted.class
+com\procurement\bid\dto\BidInput.class
+com\procurement\bid\domain\state\BidState$Created.class
+com\procurement\bid\domain\state\BidState$Evaluated.class
+com\procurement\bid\domain\state\BidState.class

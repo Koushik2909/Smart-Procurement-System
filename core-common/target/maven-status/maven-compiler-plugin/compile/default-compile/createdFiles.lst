@@ -1,0 +1,4 @@
+com\procurement\core\exception\UnauthorizedException.class
+com\procurement\core\domain\Role.class
+com\procurement\core\domain\BaseEntity.class
+com\procurement\core\exception\ResourceNotFoundException.class

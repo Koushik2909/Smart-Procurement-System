@@ -1,0 +1,4 @@
+com\procurement\notification\repository\NotificationRepository.class
+com\procurement\notification\service\NotificationService.class
+com\procurement\notification\domain\Notification.class
+com\procurement\notification\graphql\NotificationController.class

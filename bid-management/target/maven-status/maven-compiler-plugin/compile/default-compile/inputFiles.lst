@@ -1,0 +1,9 @@
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\domain\Bid.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\domain\BidStatus.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\domain\state\BidState.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\dto\BidInput.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\graphql\BidController.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\graphql\FraudController.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\repository\BidRepository.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\service\BidService.java
+C:\Users\bkous\Downloads\procurement-system\bid-management\src\main\java\com\procurement\bid\service\FraudDetectionService.java

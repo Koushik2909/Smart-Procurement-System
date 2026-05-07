@@ -1,0 +1,6 @@
+com\procurement\vendor\domain\VendorStatus.class
+com\procurement\vendor\repository\VendorProfileRepository.class
+com\procurement\vendor\service\VendorService.class
+com\procurement\vendor\dto\VendorInput.class
+com\procurement\vendor\graphql\VendorController.class
+com\procurement\vendor\domain\VendorProfile.class

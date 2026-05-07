@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: procurement-system
+  datasource:
+    url: jdbc:mysql://localhost:3306/procurement_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+
+jwt:
+  secret: 4b6250655368566d597133743677397a24432646294a404e635266556a586e32 # 256-bit Hex Key
+  expiration: 86400000 # 1 day in ms
+  refresh-expiration: 604800000 # 7 days in ms

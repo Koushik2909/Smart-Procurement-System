@@ -1,0 +1,8 @@
+com\procurement\auction\service\AuctionService.class
+com\procurement\auction\domain\AuctionStatus.class
+com\procurement\auction\dto\AuctionInput.class
+com\procurement\auction\repository\AuctionBidRepository.class
+com\procurement\auction\repository\AuctionRepository.class
+com\procurement\auction\graphql\AuctionController.class
+com\procurement\auction\domain\Auction.class
+com\procurement\auction\domain\AuctionBid.class
