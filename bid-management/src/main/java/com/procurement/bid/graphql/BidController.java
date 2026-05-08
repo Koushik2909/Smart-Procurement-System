@@ -30,16 +30,62 @@ public class BidController {
         return bidService.getBidsByTender(tenderId);
     }
 
+    @Autowired
+    private com.procurement.security.repository.UserRepository userRepository;
+
     @MutationMapping
     @PreAuthorize("hasRole('VENDOR')")
     public Bid submitBid(@Argument BidInput input) {
-        Long vendorId = 2L; // Mock ID. Real system would extract from JWT
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Long vendorId = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getId();
         return bidService.submitBid(input, vendorId);
+    }
+
+    @QueryMapping
+    @PreAuthorize("isAuthenticated()")
+    public List<Bid> compareBids(@Argument Long tenderId) {
+        return bidService.compareBids(tenderId);
+    }
+
+    @QueryMapping
+    @PreAuthorize("hasRole('EVALUATOR') or hasRole('ADMIN')")
+    public List<com.procurement.bid.domain.BidEvaluation> getEvaluationResults(@Argument Long bidId) {
+        return bidService.getEvaluationResults(bidId);
+    }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('PROCUREMENT_OFFICER') or hasRole('ADMIN')")
+    public Boolean assignEvaluator(@Argument Long bidId, @Argument Long evaluatorId) {
+        return bidService.assignEvaluator(bidId, evaluatorId);
     }
 
     @MutationMapping
     @PreAuthorize("hasRole('EVALUATOR') or hasRole('ADMIN')")
-    public Bid evaluateBid(@Argument Long id) throws InterruptedException {
-        return bidService.evaluateBid(id);
+    public com.procurement.bid.domain.BidEvaluation evaluateTechnicalBid(@Argument Long bidId, @Argument Double score) {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Long evaluatorId = userRepository.findByUsername(username).orElseThrow().getId();
+        return bidService.evaluateTechnicalBid(bidId, evaluatorId, score);
+    }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('EVALUATOR') or hasRole('ADMIN')")
+    public com.procurement.bid.domain.BidEvaluation evaluateFinancialBid(@Argument Long bidId, @Argument Double score) {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Long evaluatorId = userRepository.findByUsername(username).orElseThrow().getId();
+        return bidService.evaluateFinancialBid(bidId, evaluatorId, score);
+    }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('EVALUATOR') or hasRole('ADMIN')")
+    public Bid finalizeEvaluation(@Argument Long bidId) {
+        return bidService.finalizeEvaluation(bidId);
+    }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public Bid overrideEvaluation(@Argument Long bidId, @Argument Double technicalScore, @Argument Double financialScore, @Argument String reason) {
+        return bidService.overrideEvaluation(bidId, technicalScore, financialScore, reason);
     }
 }

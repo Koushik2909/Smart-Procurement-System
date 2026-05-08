@@ -55,4 +55,10 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
     }
+
+    @QueryMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public java.util.List<com.procurement.security.domain.RoleRequest> getPendingRoleRequests() {
+        return authService.getPendingRoleRequests();
+    }
 }

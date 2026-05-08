@@ -66,10 +66,19 @@ public class AuthService {
         throw new RuntimeException("Refresh token was expired or invalid. Please make a new signin request");
     }
 
+    @Autowired
+    private com.procurement.security.repository.RoleRequestRepository roleRequestRepository;
+
     public boolean requestVendorRole(String username) {
-        // In a real system, this might insert a record into a VendorRequest table.
-        // For now, it just returns true to signify the request was received.
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        com.procurement.security.domain.RoleRequest request = new com.procurement.security.domain.RoleRequest(user.getId(), username, "VENDOR");
+        roleRequestRepository.save(request);
         return true;
+    }
+
+    public java.util.List<com.procurement.security.domain.RoleRequest> getPendingRoleRequests() {
+        return roleRequestRepository.findByStatus("PENDING");
     }
 
     public boolean changeUserRole(Long userId, String newRoleStr) {

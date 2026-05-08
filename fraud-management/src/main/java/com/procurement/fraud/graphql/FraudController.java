@@ -1,6 +1,6 @@
-package com.procurement.bid.graphql;
+package com.procurement.fraud.graphql;
 
-import com.procurement.bid.service.FraudDetectionService;
+import com.procurement.fraud.service.FraudDetectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -31,5 +31,17 @@ public class FraudController {
     @PreAuthorize("hasRole('AUDITOR') or hasRole('ADMIN')")
     public List<String> getFraudAlerts(@Argument Long tenderId) {
         return fraudDetectionService.getFraudAlerts(tenderId);
+    }
+
+    @org.springframework.graphql.data.method.annotation.MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public com.procurement.security.domain.FraudBlocklist blockUser(@Argument Long userId, @Argument String reason) {
+        return fraudDetectionService.blockUser(userId, reason);
+    }
+
+    @org.springframework.graphql.data.method.annotation.MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public com.procurement.security.domain.FraudBlocklist unblockUser(@Argument Long userId) {
+        return fraudDetectionService.unblockUser(userId);
     }
 }

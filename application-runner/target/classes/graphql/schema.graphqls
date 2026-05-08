@@ -9,6 +9,14 @@ type User {
     role: String!
 }
 
+type RoleRequest {
+    id: ID!
+    userId: ID!
+    username: String!
+    requestedRole: String!
+    status: String!
+}
+
 type Tender {
     id: ID!
     title: String!
@@ -16,6 +24,8 @@ type Tender {
     status: String!
     submissionDeadline: String
     createdByUserId: ID!
+    technicalWeight: Float
+    financialWeight: Float
 }
 
 type Bid {
@@ -24,6 +34,15 @@ type Bid {
     vendorId: ID!
     status: String!
     technicalProposalUrl: String
+    technicalScore: Float
+    financialScore: Float
+    finalScore: Float
+}
+
+type BidEvaluation {
+    id: ID!
+    bidId: ID!
+    evaluatorId: ID!
     technicalScore: Float
     financialScore: Float
 }
@@ -129,6 +148,13 @@ type ProcurementInsights {
     reportGeneratedAt: String
 }
 
+type FraudBlocklist {
+    id: ID!
+    userId: ID!
+    reason: String!
+    status: String!
+}
+
 # ==============================================================
 # Inputs
 # ==============================================================
@@ -171,6 +197,7 @@ input AuctionInput {
 type Query {
     # Auth
     me: String
+    getPendingRoleRequests: [RoleRequest]
 
     # Tenders
     getTenderById(id: ID!): Tender
@@ -179,10 +206,13 @@ type Query {
     # Bids
     getBidById(id: ID!): Bid
     getBidsByTender(tenderId: ID!): [Bid]
+    compareBids(tenderId: ID!): [Bid]
+    getEvaluationResults(bidId: ID!): [BidEvaluation]
 
     # Vendors
     getVendorById(id: ID!): VendorProfile
     getQualifiedVendors: [VendorProfile]
+    getPendingVendors: [VendorProfile]
 
     # Auctions
     getAuctionDetails(id: ID!): Auction
@@ -231,7 +261,11 @@ type Mutation {
 
     # Bids
     submitBid(input: BidInput!): Bid
-    evaluateBid(id: ID!): Bid
+    assignEvaluator(bidId: ID!, evaluatorId: ID!): Boolean
+    evaluateTechnicalBid(bidId: ID!, score: Float!): BidEvaluation
+    evaluateFinancialBid(bidId: ID!, score: Float!): BidEvaluation
+    finalizeEvaluation(bidId: ID!): Bid
+    overrideEvaluation(bidId: ID!, technicalScore: Float!, financialScore: Float!, reason: String!): Bid
 
     # Vendors
     registerVendorProfile(input: VendorInput!): VendorProfile
@@ -258,6 +292,10 @@ type Mutation {
 
     # Notifications
     sendNotification(eventType: String!, message: String!, targetRole: String!, entityId: ID): Notification
+
+    # Fraud Management
+    blockUser(userId: ID!, reason: String!): FraudBlocklist
+    unblockUser(userId: ID!): FraudBlocklist
 }
 
 # ==============================================================

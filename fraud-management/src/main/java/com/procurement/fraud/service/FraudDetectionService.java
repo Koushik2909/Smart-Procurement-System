@@ -1,4 +1,4 @@
-package com.procurement.bid.service;
+package com.procurement.fraud.service;
 
 import com.procurement.bid.domain.Bid;
 import com.procurement.bid.repository.BidRepository;
@@ -121,5 +121,24 @@ public class FraudDetectionService {
                 .map(b -> "ANOMALY: Vendor %d's score %.2f deviates significantly from average %.2f (stddev=%.2f)"
                         .formatted(b.getVendorId(), b.getFinancialScore(), avg, stdDev))
                 .collect(Collectors.toList());
+    }
+
+    @Autowired
+    private com.procurement.security.repository.FraudBlocklistRepository fraudBlocklistRepository;
+
+    public com.procurement.security.domain.FraudBlocklist blockUser(Long userId, String reason) {
+        com.procurement.security.domain.FraudBlocklist blocklist = fraudBlocklistRepository.findByUserId(userId)
+                .orElse(new com.procurement.security.domain.FraudBlocklist());
+        blocklist.setUserId(userId);
+        blocklist.setReason(reason);
+        blocklist.setStatus(com.procurement.security.domain.BlocklistStatus.BLOCKED);
+        return fraudBlocklistRepository.save(blocklist);
+    }
+
+    public com.procurement.security.domain.FraudBlocklist unblockUser(Long userId) {
+        com.procurement.security.domain.FraudBlocklist blocklist = fraudBlocklistRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User is not blocklisted"));
+        blocklist.setStatus(com.procurement.security.domain.BlocklistStatus.ACTIVE);
+        return fraudBlocklistRepository.save(blocklist);
     }
 }

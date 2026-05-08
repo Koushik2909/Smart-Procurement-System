@@ -34,6 +34,7 @@
         <module>tender-management</module>
         <module>vendor-management</module>
         <module>bid-management</module>
+        <module>fraud-management</module>
         <module>auction-engine</module>
         <module>contract-financial</module>
         <module>compliance-audit</module>
@@ -67,6 +68,11 @@
             <dependency>
                 <groupId>com.procurement</groupId>
                 <artifactId>bid-management</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.procurement</groupId>
+                <artifactId>fraud-management</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
