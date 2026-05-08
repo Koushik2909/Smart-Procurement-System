@@ -37,6 +37,9 @@ public class Bid extends BaseEntity {
     @Column(name = "financial_score")
     private Double financialScore;
     
+    @Column(name = "final_score")
+    private Double finalScore;
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getTenderId() { return tenderId; }
@@ -53,6 +56,8 @@ public class Bid extends BaseEntity {
     public void setTechnicalScore(Double technicalScore) { this.technicalScore = technicalScore; }
     public Double getFinancialScore() { return financialScore; }
     public void setFinancialScore(Double financialScore) { this.financialScore = financialScore; }
+    public Double getFinalScore() { return finalScore; }
+    public void setFinalScore(Double finalScore) { this.finalScore = finalScore; }
 
     public com.procurement.bid.domain.state.BidState toSealedState() {
         return switch (this.status) {

@@ -19,6 +19,7 @@
         <module name="bid-management" />
         <module name="compliance-audit" />
         <module name="vendor-management" />
+        <module name="fraud-management" />
         <module name="application-runner" />
         <module name="core-common" />
         <module name="tender-management" />
@@ -36,6 +37,7 @@
       <module name="compliance-audit" options="-parameters --enable-preview" />
       <module name="contract-financial" options="-parameters --enable-preview" />
       <module name="core-common" options="-parameters --enable-preview" />
+      <module name="fraud-management" options="-parameters --enable-preview" />
       <module name="notification-service" options="-parameters --enable-preview" />
       <module name="procurement-system" options="-parameters --enable-preview" />
       <module name="security-auth" options="-parameters --enable-preview" />

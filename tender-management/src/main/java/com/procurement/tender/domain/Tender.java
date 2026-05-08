@@ -33,6 +33,12 @@ public class Tender extends BaseEntity {
     @Column(name = "created_by_user_id", nullable = false)
     private Long createdByUserId;
     
+    @Column(name = "technical_weight", nullable = false)
+    private Double technicalWeight = 0.7;
+
+    @Column(name = "financial_weight", nullable = false)
+    private Double financialWeight = 0.3;
+    
     // Convert DB Status to Java 25 Sealed Class state for pattern matching
     public com.procurement.tender.domain.state.TenderState toSealedState() {
         return switch (this.status) {

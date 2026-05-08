@@ -30,10 +30,22 @@ public class VendorController {
         return vendorService.getQualifiedVendors();
     }
 
+    @QueryMapping
+    @PreAuthorize("hasRole('PROCUREMENT_OFFICER') or hasRole('ADMIN')")
+    public List<VendorProfile> getPendingVendors() {
+        return vendorService.getPendingVendors();
+    }
+
+    @Autowired
+    private com.procurement.security.repository.UserRepository userRepository;
+
     @MutationMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('VENDOR')")
     public VendorProfile registerVendorProfile(@Argument VendorInput input) {
-        Long userId = 2L; // Mock ID. Real system extracts from JWT.
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Long userId = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getId();
         return vendorService.registerVendorProfile(userId, input);
     }
 

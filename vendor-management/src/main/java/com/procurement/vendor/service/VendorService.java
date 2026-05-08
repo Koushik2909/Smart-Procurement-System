@@ -38,6 +38,10 @@ public class VendorService {
         return vendorProfileRepository.findByStatus(VendorStatus.APPROVED);
     }
 
+    public List<VendorProfile> getPendingVendors() {
+        return vendorProfileRepository.findByStatus(VendorStatus.PENDING_APPROVAL);
+    }
+
     public VendorProfile approveVendor(Long id) {
         VendorProfile profile = getVendorById(id);
         profile.setStatus(VendorStatus.APPROVED);

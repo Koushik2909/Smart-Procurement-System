@@ -32,12 +32,16 @@ public class TenderController {
         return tenderService.getActiveTenders();
     }
 
+    @Autowired
+    private com.procurement.security.repository.UserRepository userRepository;
+
     @MutationMapping
     @PreAuthorize("hasRole('PROCUREMENT_OFFICER') or hasRole('ADMIN')")
     public Tender createTender(@Argument TenderInput input) {
-        // For simplicity, we assign a dummy user ID here or fetch from a custom UserDetails
-        // In a complete system, the auth token would have the internal user ID.
-        Long userId = 1L; // Mock ID since JWT doesn't currently embed internal ID
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Long userId = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getId();
         return tenderService.createTender(input, userId);
     }
 

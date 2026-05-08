@@ -20,7 +20,19 @@ public class BidService {
     @Autowired
     private BidRepository bidRepository;
 
+    @Autowired
+    private com.procurement.bid.repository.BidEvaluationRepository bidEvaluationRepository;
+
+    @Autowired
+    private com.procurement.security.repository.FraudBlocklistRepository fraudBlocklistRepository;
+
     public Bid submitBid(BidInput input, Long vendorId) {
+        fraudBlocklistRepository.findByUserId(vendorId).ifPresent(blocklist -> {
+            if (blocklist.getStatus() == com.procurement.security.domain.BlocklistStatus.BLOCKED) {
+                throw new RuntimeException("Access Denied: Vendor is blocklisted for: " + blocklist.getReason());
+            }
+        });
+
         Bid bid = new Bid();
         bid.setTenderId(input.tenderId());
         bid.setVendorId(vendorId);
@@ -39,54 +51,77 @@ public class BidService {
         return bidRepository.findByTenderId(tenderId);
     }
 
-    // Example of Virtual Threads & Structured Concurrency for Evaluation Workflows
-    public Bid evaluateBid(Long bidId) throws InterruptedException {
+    public List<Bid> compareBids(Long tenderId) {
+        return bidRepository.findByTenderId(tenderId).stream()
+                .filter(b -> b.getFinalScore() != null)
+                .sorted((b1, b2) -> Double.compare(b2.getFinalScore(), b1.getFinalScore()))
+                .toList();
+    }
+
+    public boolean assignEvaluator(Long bidId, Long evaluatorId) {
         Bid bid = getBidById(bidId);
+        if (bid.getVendorId().equals(evaluatorId)) {
+            throw new RuntimeException("Conflict of Interest: Vendor cannot evaluate their own bid");
+        }
+        com.procurement.bid.domain.BidEvaluation eval = new com.procurement.bid.domain.BidEvaluation();
+        eval.setBidId(bidId);
+        eval.setEvaluatorId(evaluatorId);
+        bidEvaluationRepository.save(eval);
+        return true;
+    }
+
+    public com.procurement.bid.domain.BidEvaluation evaluateTechnicalBid(Long bidId, Long evaluatorId, Double score) {
+        com.procurement.bid.domain.BidEvaluation eval = bidEvaluationRepository.findByBidIdAndEvaluatorId(bidId, evaluatorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evaluator not assigned to this bid"));
+        eval.setTechnicalScore(score);
+        return bidEvaluationRepository.save(eval);
+    }
+
+    public com.procurement.bid.domain.BidEvaluation evaluateFinancialBid(Long bidId, Long evaluatorId, Double score) {
+        com.procurement.bid.domain.BidEvaluation eval = bidEvaluationRepository.findByBidIdAndEvaluatorId(bidId, evaluatorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evaluator not assigned to this bid"));
+        eval.setFinancialScore(score);
+        return bidEvaluationRepository.save(eval);
+    }
+
+    public Bid finalizeEvaluation(Long bidId) {
+        Bid bid = getBidById(bidId);
+        List<com.procurement.bid.domain.BidEvaluation> evaluations = bidEvaluationRepository.findByBidId(bidId);
         
-        switch (bid.toSealedState()) {
-            case BidState.Submitted s -> {
-                // We can evaluate. Change to Locked for evaluation.
-                bid.setStatus(BidStatus.LOCKED);
-                bidRepository.save(bid);
-            }
-            case BidState.Locked l -> { /* Already locked, proceed */ }
-            default -> throw new IllegalStateException("Bid must be in SUBMITTED state to evaluate");
+        if (evaluations.isEmpty()) {
+            throw new RuntimeException("No evaluations found for this bid");
         }
 
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            // Concurrent evaluation tasks using Virtual Threads
-            java.util.concurrent.Future<Double> techEval = executor.submit(() -> performTechnicalEvaluation(bid.getTechnicalProposalUrl()));
-            java.util.concurrent.Future<Double> finEval = executor.submit(() -> performFinancialEvaluation(bid.getEncryptedFinancialProposal()));
-            java.util.concurrent.Future<Boolean> compliance = executor.submit(() -> checkVendorCompliance(bid.getVendorId()));
+        double avgTech = evaluations.stream().mapToDouble(e -> e.getTechnicalScore() != null ? e.getTechnicalScore() : 0).average().orElse(0);
+        double avgFin = evaluations.stream().mapToDouble(e -> e.getFinancialScore() != null ? e.getFinancialScore() : 0).average().orElse(0);
 
-            if (!compliance.get()) {
-                bid.setStatus(BidStatus.REJECTED);
-                return bidRepository.save(bid);
-            }
+        // Assume Tender weights w1=0.7, w2=0.3 for cross-module simplicity
+        double w1 = 0.7;
+        double w2 = 0.3;
+        double finalScore = (w1 * avgTech) + (w2 * avgFin);
 
-            bid.setTechnicalScore(techEval.get());
-            bid.setFinancialScore(finEval.get());
-            bid.setStatus(BidStatus.EVALUATED);
-            return bidRepository.save(bid);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Bid evaluation failed: " + e.getMessage(), e);
-        }
+        bid.setTechnicalScore(avgTech);
+        bid.setFinancialScore(avgFin);
+        bid.setFinalScore(finalScore);
+        bid.setStatus(BidStatus.EVALUATED);
+        return bidRepository.save(bid);
     }
 
-    // Mock Evaluation Tasks
-    private Double performTechnicalEvaluation(String url) throws InterruptedException {
-        Thread.sleep(100); // Simulate network call or processing
-        return 85.5; // Dummy score
+    public Bid overrideEvaluation(Long bidId, Double technicalScore, Double financialScore, String reason) {
+        Bid bid = getBidById(bidId);
+        double w1 = 0.7;
+        double w2 = 0.3;
+        double finalScore = (w1 * technicalScore) + (w2 * financialScore);
+        
+        bid.setTechnicalScore(technicalScore);
+        bid.setFinancialScore(financialScore);
+        bid.setFinalScore(finalScore);
+        bid.setStatus(BidStatus.EVALUATED);
+        // We could optionally log the 'reason' string to an Audit log here
+        return bidRepository.save(bid);
     }
 
-    private Double performFinancialEvaluation(String encryptedProposal) throws InterruptedException {
-        Thread.sleep(150); // Simulate decryption and analysis
-        return 90.0; // Dummy score
-    }
-
-    private Boolean checkVendorCompliance(Long vendorId) throws InterruptedException {
-        Thread.sleep(50); // Simulate DB check
-        return true; // Compliant
+    public List<com.procurement.bid.domain.BidEvaluation> getEvaluationResults(Long bidId) {
+        return bidEvaluationRepository.findByBidId(bidId);
     }
 }
