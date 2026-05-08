@@ -1,4 +1,4 @@
-package com.procurement.bid.service;
+package com.procurement.fraud.service;
 
 import com.procurement.bid.domain.Bid;
 import com.procurement.bid.domain.BidStatus;
@@ -11,7 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.procurement.security.domain.BlocklistStatus;
+import com.procurement.security.domain.FraudBlocklist;
+import com.procurement.security.repository.FraudBlocklistRepository;
+
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,6 +27,9 @@ class FraudDetectionServiceTest {
 
     @Mock
     private BidRepository bidRepository;
+
+    @Mock
+    private FraudBlocklistRepository fraudBlocklistRepository;
 
     @InjectMocks
     private FraudDetectionService fraudDetectionService;
@@ -100,5 +108,36 @@ class FraudDetectionServiceTest {
         List<String> patterns = fraudDetectionService.analyzeVendorPatterns();
 
         assertThat(patterns).anyMatch(p -> p.contains("PATTERN_ALERT"));
+    }
+
+    @Test
+    @DisplayName("blockUser — should save a new FraudBlocklist entity")
+    void blockUser_ShouldSaveEntity() {
+        FraudBlocklist saved = new FraudBlocklist();
+        saved.setUserId(99L);
+        saved.setStatus(BlocklistStatus.BLOCKED);
+
+        when(fraudBlocklistRepository.findByUserId(99L)).thenReturn(Optional.empty());
+        when(fraudBlocklistRepository.save(any())).thenReturn(saved);
+
+        FraudBlocklist result = fraudDetectionService.blockUser(99L, "Collusion");
+
+        assertThat(result.getStatus()).isEqualTo(BlocklistStatus.BLOCKED);
+        verify(fraudBlocklistRepository).save(any(FraudBlocklist.class));
+    }
+
+    @Test
+    @DisplayName("unblockUser — should change status to ACTIVE")
+    void unblockUser_ShouldSetStatusActive() {
+        FraudBlocklist existing = new FraudBlocklist();
+        existing.setUserId(99L);
+        existing.setStatus(BlocklistStatus.BLOCKED);
+
+        when(fraudBlocklistRepository.findByUserId(99L)).thenReturn(Optional.of(existing));
+        when(fraudBlocklistRepository.save(any())).thenReturn(existing);
+
+        FraudBlocklist result = fraudDetectionService.unblockUser(99L);
+
+        assertThat(result.getStatus()).isEqualTo(BlocklistStatus.ACTIVE);
     }
 }
